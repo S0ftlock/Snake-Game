@@ -1,0 +1,178 @@
+#include <iostream>
+#include <conio.h>
+#include <time.h>
+using namespace std;  
+
+bool game;                           //game state check
+const int width = 20;
+const int hieght = 20;               //length and breadth of board
+int x, y, fruitx, fruity, score, ntail;
+int tailx[100], taily[100];             //tail variables
+enum Direction {STOP=0, LEFT, RIGHT, UP, DOWN};
+Direction dir;
+
+void setup()
+{
+    game=true;
+    dir = STOP;                      //snake will not move until we issue a command
+    x= width/2;
+    y= hieght/2;                     //snake starting position, at the center of the board
+    fruitx= rand() % width;
+    fruity= rand() % hieght;       //fruit spawn, randomized between hieghts and widths given
+    score=0;
+}
+
+void draw()
+{
+    system("cls");                     //clears screen everytime window is refreshed
+        
+        for(int i = 0; i < width+2; i++)
+        cout<<"#";
+
+    cout<<endl;                         //top row of board
+
+        for(int i = 0; i < hieght; i++)
+        {
+            for(int j = 0; j < width; j++)
+            {
+                if(j==0)
+                {
+                    cout<<"#";                    //middle of board
+                }
+
+                if (i==y && j==x)                 //prints head of snake
+                {
+                    cout<< "O";
+                }
+                else if (i==fruity && j==fruitx)
+                {
+                    cout<< "F";
+                }
+                else
+                {  
+                    bool print = false;                         //variable to keep board the same size after adding tail
+
+                    for(int k = 0; k < ntail; k++)
+                    {   
+
+                        if(tailx[k] == j && taily[k] == i)
+                        {
+                            cout << "o";                        //tail logic
+                            print = true;
+                        }
+
+                    } 
+
+                    if(!print)
+                        cout<< " ";
+                }
+
+                if(j==(width-1))
+                {
+                    cout<<"#";
+                }
+            }
+        cout<<endl;
+        }
+
+      for(int i = 0; i < width+2; i++)
+        cout<<"#";
+
+    cout<<endl;                          //bottom row of board
+
+    cout<<"Score : "<< score << endl;
+}
+
+void input()
+{
+    if(kbhit());                            //input detection
+    {
+        switch(getch())
+        {
+            case 'w': dir = UP;
+            break;
+            case 'a': dir = LEFT;
+            break;
+            case 's': dir = DOWN;
+            break;
+            case 'd': dir = RIGHT;
+            break;
+            case 'x': game=false;
+            break;
+        }
+    }
+}
+
+void logic()
+{   
+    int prevx = tailx[0];                           //variables to make tail follow head
+    int prevy = taily[0];
+    int prev2x, prev2y;
+
+    tailx[0] = x;
+    taily[0] = y;                                   //setting tail to follow the head
+
+    for( int i = 1; i < ntail; i++)
+    {
+        prev2x = tailx[i];                          //loop to add tail onto boardw
+        prev2y = taily[i];
+        tailx[i] = prevx;
+        taily[i] = prevy;
+        prevx = prev2x;
+        prevy = prev2y;
+
+    }
+
+    switch (dir)
+    {
+        case UP: y--;                               //input logic
+        break;
+
+        case LEFT: x--;
+        break;
+
+        case DOWN: y++;
+        break;
+
+        case RIGHT: x++;
+        break;
+
+        default: break;
+    }
+
+    if (x > width || x < 0 || y > hieght || y < 0)      //border collision logic
+        game = false;
+
+    for(int i = 0; i < ntail; i++)
+    {
+        if(tailx[i] == x && taily[i] == y)          //tail collision logic
+        game = false;
+    }    
+
+    if(x==fruitx && y==fruity)                      //eating fruit logic
+        {
+            score++;                                
+            fruitx = rand() % width;
+            fruity = rand() % hieght;
+            ntail++;                                //increase tail size
+        }  
+
+}
+
+int main()
+{
+    srand(time(0));                     //for random fruit generation
+    
+    setup();
+
+    while(game)
+    {
+        draw();
+        input();
+        logic();
+    }
+
+  //   /(^o^)／
+
+return 0;
+}
